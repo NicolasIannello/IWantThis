@@ -1,3 +1,4 @@
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 
@@ -5,12 +6,15 @@ namespace IWantThis
 {
     public class IWantThisMod : Mod
     {
+        public static Harmony Harmony;
         public static IWantThisMod Instance;
         private IWantThisSettings Settings;
         private string buf;
 
         public IWantThisMod(ModContentPack content) : base(content)
         {
+            Harmony = new Harmony("com.eximeisty.iwantthis");
+            Harmony.PatchAll();
             Instance = this;
             this.Settings = GetSettings<IWantThisSettings>();
         }
