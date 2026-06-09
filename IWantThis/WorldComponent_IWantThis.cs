@@ -21,7 +21,7 @@ namespace IWantThis
 
         public void TryOpenComms(Pawn negotiator)
         {
-            Find.WindowStack.Add(new Dialog_IWantThis(negotiator.MapHeld));
+            Find.WindowStack.Add(new Bounty_IWantThis(negotiator.MapHeld));
         }
 
         public FloatMenuOption CommFloatMenuOption(Building_CommsConsole console, Pawn negotiator) =>

@@ -57,7 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UI\Dialog_IWantThis.cs" />
+    <Compile Include="UI\Bounty_IWantThis.cs" />
     <Compile Include="WorldComponent_IWantThis.cs" />
     <Compile Include="IWantThisMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

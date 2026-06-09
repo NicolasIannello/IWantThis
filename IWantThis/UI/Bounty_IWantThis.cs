@@ -5,11 +5,11 @@ using Verse;
 
 namespace IWantThis.UI
 {
-    public class Dialog_IWantThis : Window
+    public class Bounty_IWantThis : Window
     {
         public Map Map;
 
-        public Dialog_IWantThis(Map map)
+        public Bounty_IWantThis(Map map)
         {
             forcePause = true;
             doCloseButton = false;
