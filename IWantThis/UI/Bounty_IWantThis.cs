@@ -1,5 +1,5 @@
 ﻿using RimWorld;
-using System.Text;
+using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 
@@ -8,6 +8,14 @@ namespace IWantThis.UI
     public class Bounty_IWantThis : Window
     {
         public Map Map;
+        private readonly string gold = "IWantThis.Misc".Translate(ThingDefOf.Gold.LabelCap);
+        private readonly string silver = "IWantThis.Misc".Translate(ThingDefOf.Silver.LabelCap);
+        private readonly string option1 = "ItemsTab".Translate();
+        private readonly string option2 = "TabPenAnimals".Translate();
+        private readonly string option3 = "Xenotype".Translate();
+        private string selectedOption = "ItemsTab".Translate();
+        private bool Open = false;
+        private ThingDef bountyTarget = null;
 
         public Bounty_IWantThis(Map map)
         {
@@ -24,7 +32,7 @@ namespace IWantThis.UI
             Map = map;
         }
 
-        public override Vector2 InitialSize => new Vector2(1000, 750);
+        public override Vector2 InitialSize => new Vector2(700, 800);
 
         public override void PostOpen()
         {
@@ -45,78 +53,53 @@ namespace IWantThis.UI
 
         public override void DoWindowContents(Rect inRect)
         {
-            //var deserters = WorldComponent_IWantThis.Instance;
-            var left = inRect.LeftPart(inRect.width / 5 * 2);
-            var factionName = Faction.OfPlayer.Name;
-            var text = "VFED.Visibility";
-            var width = Text.CalcSize(text).x + 35;
+            Listing_Standard listing = new Listing_Standard();
+            listing.Begin(inRect);
+
+            Text.Anchor = TextAnchor.MiddleCenter;
             Text.Font = GameFont.Medium;
-            var title = left.TopPart(Text.CalcHeight(factionName, left.width - width) + 8);
-            var visibilityRect = title.RightPart(width).TopPartPixels(30);
-            Widgets.Label(title, factionName);
+            Rect labelRect = listing.GetRect(40f);
+            Widgets.Label(labelRect, "IWantThis.PlaceBounty".Translate());
             Text.Font = GameFont.Small;
-            visibilityRect = visibilityRect.ContractedBy(2f, 4.5f);
-            Widgets.DrawHighlight(visibilityRect);
-            //if (Mouse.IsOver(visibilityRect))
-            //{
-                Widgets.DrawHighlight(visibilityRect);
-                var builder = new StringBuilder();
-                builder.Append("VFED.CurrentVisibility".Translate().Colorize(ColoredText.TipSectionTitleColor));
-                builder.AppendLine(text.ToString()
-                   .Colorize(Color.Lerp(ColorLibrary.BrightGreen, ColorLibrary.RedReadable, Mathf.InverseLerp(0, 100, 11))));
-                builder.AppendLine();
-                builder.AppendLine("visibilityLevel.description");
-                builder.AppendLine();
-                builder.AppendLine("VFED.Effects".Translate().Colorize(ColoredText.TipSectionTitleColor));
-                builder.Append("VFED.IntelCostModifier".Translate());
-                builder.Append("VFED.ContrabandRecieveTimeModifier".Translate());
-                builder.Append("VFED.ContrabandSiteTimeModifier".Translate());
-                builder.Append("VFED.ImperialResponseTime".Translate());
-                builder.Append("VFED.ImperialResponseType".Translate());
-                builder.Append("VFED.SpecialEffects".Translate().Colorize(ColoredText.TipSectionTitleColor));
-                TooltipHandler.TipRegion(visibilityRect, builder.ToString());
-            //}
+            Text.Anchor = TextAnchor.UpperLeft;
 
-            //GUI.DrawTexture(visibilityRect.LeftPart(20), visibilityLevel.Icon);
-            visibilityRect.LeftPart(3);
-            using (new TextBlock(TextAnchor.MiddleCenter))
-                Widgets.Label(visibilityRect, text);
-
-            Widgets.DrawLineHorizontal(left.x, left.yMin, left.width);
-
-            Text.Font = GameFont.Small;
-
-            var intelRect = left.TopPart(30);
-            Widgets.DrawLightHighlight(intelRect);
-            if (Mouse.IsOver(intelRect)) Widgets.DrawHighlight(intelRect);
-            TooltipHandler.TipRegion(intelRect, "VFED.IntelAmount".Translate("VFED_DefOf.VFED_Intel.label"));
-            //Widgets.DefIcon(intelRect.LeftPart(30).ContractedBy(1.5f), VFED_DefOf.VFED_Intel);
-            //Widgets.InfoCardButton(intelRect.LeftPart(30).ContractedBy(3), VFED_DefOf.VFED_Intel);
-            using (new TextBlock(TextAnchor.MiddleLeft))
+            Rect labelRect2 = listing.GetRect(35f);
+            if (Widgets.ButtonText(labelRect2, selectedOption))
             {
-                Widgets.Label(intelRect.RightPart(80), "TotalIntel.ToString()");
-                intelRect.LeftPart(20);
-                //Widgets.Label(intelRect, VFED_DefOf.VFED_Intel.LabelCap);
+                List<FloatMenuOption> options = new List<FloatMenuOption>
+                {
+                    new FloatMenuOption(option1, () => selectedOption = option1),
+                    new FloatMenuOption(option2, () => selectedOption = option2),
+                    new FloatMenuOption(option3, () => selectedOption = option3)
+                };
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
+            listing.Gap();
+
+            if (selectedOption == option2)
+            {
+                Rect labelRect3 = listing.GetRect(65f);
+                if (Widgets.ButtonText(labelRect3, "IWantThis.Select".Translate(option2)))
+                {
+                    Open = true;
+                }
+                listing.Gap(24f);
+
+                if (Open)
+                {
+                    Open = false;
+                    Find.WindowStack.Add(new AnimalSelector(delegate (ThingDef chosenAnimal)
+                    {
+                        this.bountyTarget = chosenAnimal;
+                    }));
+                }
+                
             }
 
-            intelRect = left.TopPart(30);
-            if (Mouse.IsOver(intelRect)) Widgets.DrawHighlight(intelRect);
-            //TooltipHandler.TipRegion(intelRect, "VFED.IntelAmount".Translate(VFED_DefOf.VFED_CriticalIntel.label));
-            //Widgets.DefIcon(intelRect.LeftPart(30).ContractedBy(1.5f), VFED_DefOf.VFED_CriticalIntel);
-            //Widgets.InfoCardButton(intelRect.LeftPart(30).ContractedBy(3), VFED_DefOf.VFED_CriticalIntel);
-            //using (new TextBlock(TextAnchor.MiddleLeft))
-            //{
-            //    Widgets.Label(intelRect.RightPart(80), TotalCriticalIntel.ToString());
-            //    intelRect.LeftPart(20);
-            //    Widgets.Label(intelRect, VFED_DefOf.VFED_CriticalIntel.LabelCap);
-            //}
+            listing.End();
 
-            left.TopPart(40);
-            Widgets.DrawMenuSection(left);
-            //TabDrawer.DrawTabs(left, tabs);
-            //curTab.Worker.DoLeftPart(left.ContractedBy(2));
-            inRect.LeftPart(3);
-            //curTab.Worker.DoMainPart(inRect.ContractedBy(2));
+            //this.Close()
         }
     }
 }
