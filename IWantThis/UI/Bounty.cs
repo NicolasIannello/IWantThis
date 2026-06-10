@@ -5,7 +5,7 @@ using Verse;
 
 namespace IWantThis.UI
 {
-    public class Bounty_IWantThis : Window
+    public class Bounty : Window
     {
         public Map Map;
         private readonly string gold = "IWantThis.Misc".Translate(ThingDefOf.Gold.LabelCap);
@@ -15,9 +15,9 @@ namespace IWantThis.UI
         private readonly string option3 = "Xenotype".Translate();
         private string selectedOption = "ItemsTab".Translate();
         private bool Open = false;
-        private ThingDef bountyTarget = null;
+        private Def bountyTarget = null;
 
-        public Bounty_IWantThis(Map map)
+        public Bounty(Map map)
         {
             forcePause = true;
             doCloseButton = false;
@@ -89,9 +89,9 @@ namespace IWantThis.UI
                 if (Open)
                 {
                     Open = false;
-                    Find.WindowStack.Add(new Selector(delegate (ThingDef chosenAnimal)
+                    Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                     {
-                        this.bountyTarget = chosenAnimal;
+                        this.bountyTarget = chosenThing;
                     }, selectedOption));
                 }
                 
