@@ -32,7 +32,7 @@ namespace IWantThis.UI
             Map = map;
         }
 
-        public override Vector2 InitialSize => new Vector2(700, 800);
+        public override Vector2 InitialSize => new Vector2(Screen.width*0.3f, Screen.height-200);
 
         public override void PostOpen()
         {
@@ -46,9 +46,6 @@ namespace IWantThis.UI
             //            if (thing.def == VFED_DefOf.VFED_Intel) TotalIntel += thing.stackCount;
             //            if (thing.def == VFED_DefOf.VFED_CriticalIntel) TotalCriticalIntel += thing.stackCount;
             //        }
-
-            //foreach (var tab in DefDatabase<IWantThisTabDef>.AllDefs) tab.Worker.Notify_Open(this);
-            //curTab = DefDatabase<IWantThisTabDef>.AllDefs.First();
         }
 
         public override void DoWindowContents(Rect inRect)
@@ -77,28 +74,52 @@ namespace IWantThis.UI
             }
             listing.Gap();
 
-            //if (selectedOption == option2)
-            //{
-                Rect labelRect3 = listing.GetRect(65f);
-                if (Widgets.ButtonText(labelRect3, "IWantThis.Select".Translate(selectedOption)))
-                {
-                    Open = true;
-                }
-                listing.Gap(24f);
+            Rect labelRect3 = listing.GetRect(35f);
+            if (Widgets.ButtonText(labelRect3, "IWantThis.Select".Translate(selectedOption)))
+            {
+                Open = true;
+            }
+            listing.Gap();
 
-                if (Open)
+            if (Open)
+            {
+                Open = false;
+                Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
-                    Open = false;
-                    Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
-                    {
-                        this.bountyTarget = chosenThing;
-                    }, selectedOption));
-                }
-                
-            //}
+                    this.bountyTarget = chosenThing;
+                }, selectedOption));
+            }
+
+            float size = (inRect.width+inRect.height) * 0.25f; 
+            float posX = inRect.width * 0.5f - size/2;
+            Log.Message("size: " + size + " posX: " + posX);
+            Rect iconRect = new Rect(posX, listing.GetRect(0).y, size, size);
+            GUI.DrawTexture(iconRect, ThingDef.Named("RelicInertTablet").uiIcon);
+
+            Texture2D icon = null;
+            if (bountyTarget is ThingDef thingDef) icon = thingDef.uiIcon;
+            if (bountyTarget is XenotypeDef xenoDef) icon = xenoDef.Icon;
+            float size2 = size * 0.35f; float posX2 = inRect.width * 0.5f - size2 / 2;
+            Rect iconRect2 = new Rect(posX2, listing.GetRect(0).y+size*0.45f, size2, size2);
+            GUI.DrawTexture(iconRect2, icon);
+
+            if (bountyTarget != null)
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Text.Font = GameFont.Medium;
+                Rect infoRect = new Rect(0, inRect.height - 80 - 35 - 12, inRect.width, 80f);
+                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate("idk", "idk2", silver, gold));
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.UpperLeft;
+            }
+
+            Rect confirmRect = new Rect(0, inRect.height - 35 - 12, inRect.width, 35f);
+            if (Widgets.ButtonText(confirmRect, "IWantThis.ConfirmBounty".Translate()))
+            {
+
+            }
 
             listing.End();
-
             //this.Close()
         }
     }
