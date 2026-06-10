@@ -77,10 +77,10 @@ namespace IWantThis.UI
             }
             listing.Gap();
 
-            if (selectedOption == option2)
-            {
+            //if (selectedOption == option2)
+            //{
                 Rect labelRect3 = listing.GetRect(65f);
-                if (Widgets.ButtonText(labelRect3, "IWantThis.Select".Translate(option2)))
+                if (Widgets.ButtonText(labelRect3, "IWantThis.Select".Translate(selectedOption)))
                 {
                     Open = true;
                 }
@@ -89,13 +89,13 @@ namespace IWantThis.UI
                 if (Open)
                 {
                     Open = false;
-                    Find.WindowStack.Add(new AnimalSelector(delegate (ThingDef chosenAnimal)
+                    Find.WindowStack.Add(new Selector(delegate (ThingDef chosenAnimal)
                     {
                         this.bountyTarget = chosenAnimal;
-                    }));
+                    }, selectedOption));
                 }
                 
-            }
+            //}
 
             listing.End();
 
