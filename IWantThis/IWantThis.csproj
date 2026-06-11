@@ -57,6 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IWantThis_DefOf.cs" />
     <Compile Include="UI\Bounty.cs" />
     <Compile Include="UI\Selector.cs" />
     <Compile Include="WorldComponent_IWantThis.cs" />
