@@ -16,6 +16,10 @@ namespace IWantThis.UI
         private string selectedOption = "ItemsTab".Translate();
         private bool Open = false;
         private Def bountyTarget = null;
+        private float bountyPrice = 0;
+        private int goldC = 0;
+        private int silverC= 0;
+        private float wealth = 0;
 
         public Bounty(Map map)
         {
@@ -37,15 +41,10 @@ namespace IWantThis.UI
         public override void PostOpen()
         {
             base.PostOpen();
-            //var seenThings = new HashSet<Thing>();
-            //foreach (var beacon in Building_OrbitalTradeBeacon.AllPowered(Map))
-            //    foreach (var cell in beacon.TradeableCells)
-            //        foreach (var thing in cell.GetThingList(Map))
-            //        {
-            //            if (!seenThings.Add(thing)) continue;
-            //            if (thing.def == VFED_DefOf.VFED_Intel) TotalIntel += thing.stackCount;
-            //            if (thing.def == VFED_DefOf.VFED_CriticalIntel) TotalCriticalIntel += thing.stackCount;
-            //        }
+            Map.listerThings.ThingsOfDef(ThingDefOf.Silver).ForEach(t => silverC += t.stackCount);
+            Map.listerThings.ThingsOfDef(ThingDefOf.Gold).ForEach(t => goldC+= t.stackCount);
+
+            wealth= ThingDefOf.Silver.BaseMarketValue * silverC + ThingDefOf.Gold.BaseMarketValue * goldC;
         }
 
         public override void DoWindowContents(Rect inRect)
@@ -86,13 +85,19 @@ namespace IWantThis.UI
                 Open = false;
                 Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
-                    this.bountyTarget = chosenThing;
+                    bountyTarget = chosenThing;
+                    if (bountyTarget is ThingDef thingDef2) bountyPrice = thingDef2.BaseMarketValue * 1.75f;
+                    if (bountyTarget is XenotypeDef xenoDef2)
+                    {
+                        bountyPrice = 700 * xenoDef2.combatPowerFactor + 20 * xenoDef2.AllGenes.Count + 300 * (xenoDef2.Archite ? 1 : 0)
+                            - 100 * xenoDef2.generateWithXenogermReplicatingHediffChance - 5 * xenoDef2.factionlessGenerationWeight;                        
+                        
+                    }
                 }, selectedOption));
             }
 
             float size = (inRect.width+inRect.height) * 0.25f; 
             float posX = inRect.width * 0.5f - size/2;
-            Log.Message("size: " + size + " posX: " + posX);
             Rect iconRect = new Rect(posX, listing.GetRect(0).y, size, size);
             GUI.DrawTexture(iconRect, ThingDef.Named("RelicInertTablet").uiIcon);
 
@@ -108,7 +113,7 @@ namespace IWantThis.UI
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Text.Font = GameFont.Medium;
                 Rect infoRect = new Rect(0, inRect.height - 80 - 35 - 12, inRect.width, 80f);
-                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate("idk", "idk2", silver, gold));
+                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(bountyPrice, wealth, silver, gold));
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.UpperLeft;
             }
@@ -117,10 +122,10 @@ namespace IWantThis.UI
             if (Widgets.ButtonText(confirmRect, "IWantThis.ConfirmBounty".Translate()))
             {
 
+                //this.Close()
             }
 
             listing.End();
-            //this.Close()
         }
     }
 }
