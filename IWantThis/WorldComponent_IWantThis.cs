@@ -13,7 +13,7 @@ namespace IWantThis
     {
         public static WorldComponent_IWantThis Instance;
         public WorldComponent_IWantThis(World world) : base(world) => Instance = this;
-
+        public bool ActiveBounty = false;
         public string GetCallLabel() => null;
         public string GetInfoText() => null;
         public Faction GetFaction() => null;
@@ -25,14 +25,23 @@ namespace IWantThis
         }
 
         public FloatMenuOption CommFloatMenuOption(Building_CommsConsole console, Pawn negotiator) =>
-                FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(
-                    "IWantThis.PlaceBounty".Translate(), 
-                    delegate { console.GiveUseCommsJob(negotiator, this); },
-                    MenuOptionPriority.InitiateSocial), negotiator, console);
+                FloatMenuUtility.DecoratePrioritizedTask(
+                    ActiveBounty ?
+                    new FloatMenuOption("IWantThis.PlaceBounty".Translate("(" + "IWantThis.BountyActive".Translate() + ")"),
+                        null, ThingDef.Named("RelicInertTablet"), null, false)
+                    :
+                    new FloatMenuOption("IWantThis.PlaceBounty".Translate(""), delegate { console.GiveUseCommsJob(negotiator, this); },
+                        ThingDef.Named("RelicInertTablet"), null, false, MenuOptionPriority.InitiateSocial)
+                    , negotiator, console);
 
         [HarmonyPatch(typeof(Building_CommsConsole), nameof(Building_CommsConsole.GetCommTargets))]
         [HarmonyPostfix]
         public static IEnumerable<ICommunicable> Postfix(IEnumerable<ICommunicable> targets) => targets.Append(Instance);
 
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref ActiveBounty, "ActiveBounty");
+        }
     }
 }
