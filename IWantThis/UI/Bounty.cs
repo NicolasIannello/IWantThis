@@ -1,5 +1,6 @@
 ﻿using RimWorld;
 using RimWorld.QuestGen;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -17,7 +18,7 @@ namespace IWantThis.UI
         private string selectedOption = "ItemsTab".Translate();
         private bool Open = false;
         private Def bountyTarget = null;
-        private float bountyPrice = 0;
+        private int bountyPrice = 0;
         private int goldC = 0;
         private int silverC = 0;
         private float wealth = 0;
@@ -43,7 +44,7 @@ namespace IWantThis.UI
         {
             base.PostOpen();
             Map.listerThings.ThingsOfDef(ThingDefOf.Silver).ForEach(t => silverC += t.stackCount);
-            Map.listerThings.ThingsOfDef(ThingDefOf.Gold).ForEach(t => goldC += t.stackCount);
+            //Map.listerThings.ThingsOfDef(ThingDefOf.Gold).ForEach(t => goldC += t.stackCount);
 
             wealth = ThingDefOf.Silver.BaseMarketValue * silverC + ThingDefOf.Gold.BaseMarketValue * goldC;
         }
@@ -87,11 +88,11 @@ namespace IWantThis.UI
                 Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
                     bountyTarget = chosenThing;
-                    if (bountyTarget is ThingDef thingDef2) bountyPrice = thingDef2.BaseMarketValue * 1.75f;
+                    if (bountyTarget is ThingDef thingDef2) bountyPrice = (int)Math.Ceiling(thingDef2.BaseMarketValue * 1.75f);
                     if (bountyTarget is XenotypeDef xenoDef2)
                     {
-                        bountyPrice = 700 * xenoDef2.combatPowerFactor + 20 * xenoDef2.AllGenes.Count + 300 * (xenoDef2.Archite ? 1 : 0)
-                            - 100 * xenoDef2.generateWithXenogermReplicatingHediffChance - 5 * xenoDef2.factionlessGenerationWeight;
+                        bountyPrice = (int)Math.Ceiling(700 * xenoDef2.combatPowerFactor + 20 * xenoDef2.AllGenes.Count + 300 * (xenoDef2.Archite ? 1 : 0)
+                            - 100 * xenoDef2.generateWithXenogermReplicatingHediffChance - 5 * xenoDef2.factionlessGenerationWeight);
 
                     }
                 }, selectedOption));
@@ -123,10 +124,17 @@ namespace IWantThis.UI
             if (Widgets.ButtonText(confirmRect, "IWantThis.ConfirmBounty".Translate()) && bountyTarget != null)
             {
                 var slate = new Slate();
-                slate.Set("delayTicks", IWantThisMod.IntervalArrival.RandomInRange);
-                slate.Set("availableTime", Mathf.RoundToInt(IWantThisMod.IntervalArrival.max * GenDate.TicksPerDay));
-                //var things = new List<ThingDef>();
+                List<ThingDefCount> requiredShuttleItems = new List<ThingDefCount>
+                {
+                    new ThingDefCount(ThingDefOf.Silver, bountyPrice)
+                };
+                slate.Set("requiredShuttleItems", requiredShuttleItems);
+                slate.Set("delayTicks", IWantThisMod.IntervalArrival.RandomInRange*60000);
                 slate.Set("bountyTarget", bountyTarget.LabelCap);
+                slate.Set("bountyPrice", bountyPrice);
+                slate.Set("minDays", IWantThisMod.IntervalArrival.min);
+                slate.Set("maxDays", IWantThisMod.IntervalArrival.max);
+
                 QuestUtility.GenerateQuestAndMakeAvailable(IWantThis_DefOf.IWantThis_BountyQuest, slate);
                 WorldComponent_IWantThis.Instance.ActiveBounty=true;
                 this.Close();
