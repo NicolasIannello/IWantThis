@@ -14,6 +14,7 @@ namespace IWantThis
         public static WorldComponent_IWantThis Instance;
         public WorldComponent_IWantThis(World world) : base(world) => Instance = this;
         public bool ActiveBounty = false;
+        public int Reputation= 0;
         public string GetCallLabel() => null;
         public string GetInfoText() => null;
         public Faction GetFaction() => null;
@@ -41,7 +42,8 @@ namespace IWantThis
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look(ref ActiveBounty, "ActiveBounty");
+            Scribe_Values.Look(ref ActiveBounty, nameof(ActiveBounty));
+            Scribe_Values.Look(ref Reputation, nameof(Reputation));
         }
     }
 }
