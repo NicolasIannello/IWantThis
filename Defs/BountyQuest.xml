@@ -16,6 +16,7 @@
         </questDescriptionRules>
         <root Class="QuestNode_Sequence">
             <nodes>
+                <li Class="IWantThis.Quest.QuestNode_BountyStart" />
                 <li Class="QuestNode_GetMap" />
                 <li Class="QuestNode_GetWalkInSpot" />
 
@@ -67,7 +68,7 @@
                                     <sendStandardLetter>true</sendStandardLetter>
                                 </node>
                             </li>
-                            
+
                             <li Class="QuestNode_Signal">
                                 <inSignal>pickupShipThing.SentUnsatisfied</inSignal>
                                 <node Class="QuestNode_Sequence">
