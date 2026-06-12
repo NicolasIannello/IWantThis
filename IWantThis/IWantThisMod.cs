@@ -44,7 +44,7 @@ namespace IWantThis
             listing.Gap();
 
             listing.Label("IWantThis.IntervalArrival".Translate(2, 10));
-            listing.IntRange(ref Settings.IntervalArrival, 0, 30);
+            listing.IntRange(ref Settings.IntervalArrival, 1, 30);
 
             listing.Gap(12f);
             if (listing.ButtonText("IWantThis.Reset".Translate()))
