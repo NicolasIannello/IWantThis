@@ -61,6 +61,8 @@ namespace IWantThis.UI
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
 
+            Widgets.Label(labelRect, "IWantThis.Reputation".Translate(WorldComponent_IWantThis.Instance.Reputation));
+
             Rect labelRect2 = listing.GetRect(35f);
             if (Widgets.ButtonText(labelRect2, selectedOption))
             {
@@ -136,7 +138,6 @@ namespace IWantThis.UI
                 slate.Set("maxDays", IWantThisMod.IntervalArrival.max);
 
                 QuestUtility.GenerateQuestAndMakeAvailable(IWantThis_DefOf.IWantThis_BountyQuest, slate);
-                WorldComponent_IWantThis.Instance.ActiveBounty=true;
                 this.Close();
             }
 
