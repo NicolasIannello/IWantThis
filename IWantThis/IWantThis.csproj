@@ -58,6 +58,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IWantThis_DefOf.cs" />
+    <Compile Include="Quest\QuestNode_Bounty.cs" />
+    <Compile Include="Quest\QuestPart_Bounty.cs" />
     <Compile Include="UI\Bounty.cs" />
     <Compile Include="UI\Selector.cs" />
     <Compile Include="WorldComponent_IWantThis.cs" />
