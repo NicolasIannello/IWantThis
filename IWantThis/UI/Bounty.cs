@@ -70,8 +70,9 @@ namespace IWantThis.UI
                 {
                     new FloatMenuOption(option1, () => selectedOption = option1),
                     new FloatMenuOption(option2, () => selectedOption = option2),
-                    new FloatMenuOption(option3, () => selectedOption = option3)
                 };
+
+                if (ModsConfig.BiotechActive) options.Add(new FloatMenuOption(option3, () => selectedOption = option3));
 
                 Find.WindowStack.Add(new FloatMenu(options));
             }
@@ -90,12 +91,11 @@ namespace IWantThis.UI
                 Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
                     bountyTarget = chosenThing;
-                    if (bountyTarget is ThingDef thingDef2) bountyPrice = (int)Math.Ceiling(thingDef2.BaseMarketValue * 1.75f);
+                    if (bountyTarget is ThingDef thingDef2) bountyPrice = (int)Math.Ceiling((thingDef2.BaseMarketValue * 1.75f) + (thingDef2.isTechHediff ? 500 : 0));
                     if (bountyTarget is XenotypeDef xenoDef2)
                     {
                         bountyPrice = (int)Math.Ceiling(700 * xenoDef2.combatPowerFactor + 20 * xenoDef2.AllGenes.Count + 300 * (xenoDef2.Archite ? 1 : 0)
                             - 100 * xenoDef2.generateWithXenogermReplicatingHediffChance - 5 * xenoDef2.factionlessGenerationWeight);
-
                     }
                 }, selectedOption));
             }
@@ -103,7 +103,7 @@ namespace IWantThis.UI
             float size = (inRect.width + inRect.height) * 0.25f;
             float posX = inRect.width * 0.5f - size / 2;
             Rect iconRect = new Rect(posX, listing.GetRect(0).y, size, size);
-            GUI.DrawTexture(iconRect, ThingDef.Named("RelicInertTablet").uiIcon);
+            if(ModsConfig.IdeologyActive) GUI.DrawTexture(iconRect, ThingDef.Named("RelicInertTablet").uiIcon);
 
             Texture2D icon = null;
             if (bountyTarget is ThingDef thingDef) icon = thingDef.uiIcon;
@@ -131,6 +131,27 @@ namespace IWantThis.UI
                     new ThingDefCount(ThingDefOf.Silver, bountyPrice)
                 };
                 slate.Set("requiredShuttleItems", requiredShuttleItems);
+                List<Thing> reward = new List<Thing>();
+                if (selectedOption == option1)
+                {
+                    Thing thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+                    thingGen.stackCount = 1;
+                    reward.Add(thingGen);
+                }
+                if (selectedOption == option2)
+                {
+                    PawnKindDef animalKindDef = DefDatabase<PawnKindDef>.GetNamed(bountyTarget.defName);
+                    Pawn animalGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: animalKindDef, faction: null));
+                    reward.Add(animalGen);
+                }
+                if (selectedOption == option3)
+                {
+                    Pawn pawnGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                                PawnKindDefOf.Beggar, forceGenerateNewPawn: true, allowDowned: true,
+                                forcedXenotype: DefDatabase<XenotypeDef>.GetNamed(bountyTarget.defName), dontGiveWeapon: true));
+                    reward.Add(pawnGen);
+                }
+                slate.Set("reward", reward);
                 slate.Set("delayTicks", IWantThisMod.IntervalArrival.RandomInRange*60000);
                 slate.Set("bountyTarget", bountyTarget.LabelCap);
                 slate.Set("bountyPrice", bountyPrice);

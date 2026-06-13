@@ -29,10 +29,10 @@ namespace IWantThis
                 FloatMenuUtility.DecoratePrioritizedTask(
                     ActiveBounty ?
                     new FloatMenuOption("IWantThis.PlaceBounty".Translate("(" + "IWantThis.BountyActive".Translate() + ")"),
-                        null, ThingDef.Named("RelicInertTablet"), null, false)
+                        null, ModsConfig.IdeologyActive ? ThingDef.Named("RelicInertTablet") : ThingDef.Named("CommsConsole"), null, false)
                     :
                     new FloatMenuOption("IWantThis.PlaceBounty".Translate(""), delegate { console.GiveUseCommsJob(negotiator, this); },
-                        ThingDef.Named("RelicInertTablet"), null, false, MenuOptionPriority.InitiateSocial)
+                        ModsConfig.IdeologyActive ? ThingDef.Named("RelicInertTablet") : ThingDef.Named("CommsConsole"), null, false, MenuOptionPriority.InitiateSocial)
                     , negotiator, console);
 
         [HarmonyPatch(typeof(Building_CommsConsole), nameof(Building_CommsConsole.GetCommTargets))]

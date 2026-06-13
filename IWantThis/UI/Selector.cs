@@ -27,7 +27,7 @@ namespace IWantThis.UI
                 .Where(d => d.PlayerAcquirable && (d.IsPleasureDrug || d.IsNonMedicalDrug || d.IsMedicine || d.IsNaturalOrgan || d.isTechHediff || d.IsWeapon || d.IsApparel)).OrderBy(d => d.label).Cast<Def>().ToList();
             if (option == "TabPenAnimals".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
                 .Where(d => d.race != null && d.race.Animal && !d.IsCorpse && d.race.animalType != AnimalType.Dryad).OrderBy(d => d.label).Cast<Def>().ToList();
-            if (option == "Xenotype".Translate() && ModsConfig.BiotechActive) this.all = DefDatabase<XenotypeDef>.AllDefs.OrderBy(d => d.label).Cast<Def>().ToList();
+            if (ModsConfig.BiotechActive && option == "Xenotype".Translate()) this.all = DefDatabase<XenotypeDef>.AllDefs.OrderBy(d => d.label).Cast<Def>().ToList();
 
         }
 
