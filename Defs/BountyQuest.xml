@@ -63,9 +63,16 @@
 
                             <li Class="QuestNode_Signal">
                                 <inSignal>pickupShipThing.SentSatisfied</inSignal>
-                                <node Class="QuestNode_End">
-                                    <outcome>Success</outcome>
-                                    <sendStandardLetter>true</sendStandardLetter>
+                                <node Class="QuestNode_Sequence">
+                                    <nodes>
+                                        <li Class="QuestNode_DropPods">
+                                            <contents>$reward</contents>
+                                            <useTradeDropSpot>true</useTradeDropSpot>
+                                        </li>
+                                        <li Class="QuestNode_End">
+                                            <outcome>Success</outcome>
+                                        </li>
+                                    </nodes>
                                 </node>
                             </li>
 
@@ -84,11 +91,7 @@
                                     </nodes>
                                 </node>
                             </li>
-                            <!-- <li Class="QuestNode_GeneratePawn">
-                                <kindDef>Beggar</kindDef> 
-                                <faction>none</faction>
-                                <storeAs>bountyHunterPawn</storeAs>
-                            </li>-->
+
                             <li Class="QuestNode_Delay">
                                 <isQuestTimeout>true</isQuestTimeout>
                                 <delayTicks>15000</delayTicks>
