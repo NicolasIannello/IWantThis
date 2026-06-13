@@ -10,24 +10,25 @@ namespace IWantThis.Quest
         public override void Notify_QuestSignalReceived(Signal signal)
         {
             base.Notify_QuestSignalReceived(signal);
-            int rep = WorldComponent_IWantThis.Instance.Reputation;
             if (signal.tag == inSignal+".pickupShipThing.SentSatisfied")
             {
                 WorldComponent_IWantThis.Instance.ActiveBounty = false;
-                WorldComponent_IWantThis.Instance.Reputation = rep + 1;
-                Messages.Message("IWantThis.ReputationChange".Translate(), MessageTypeDefOf.NeutralEvent);
+                WorldComponent_IWantThis.Instance.Reputation += WorldComponent_IWantThis.Instance.ReputationCompleted;
+                Messages.Message("IWantThis.ReputationChange".Translate(WorldComponent_IWantThis.Instance.Reputation), MessageTypeDefOf.NeutralEvent);
             }
             if (signal.tag == inSignal + ".pickupShipThing.Destroyed")
             {
                 WorldComponent_IWantThis.Instance.ActiveBounty = false;
-                WorldComponent_IWantThis.Instance.Reputation = rep - 3;
-                Messages.Message("IWantThis.ReputationChange".Translate(), MessageTypeDefOf.NegativeEvent);
+                WorldComponent_IWantThis.Instance.Reputation += WorldComponent_IWantThis.Instance.ReputationDestroyed;
+                Messages.Message("IWantThis.ReputationChange".Translate(WorldComponent_IWantThis.Instance.Reputation), MessageTypeDefOf.NegativeEvent);
+                if (WorldComponent_IWantThis.Instance.Reputation < -4) WorldComponent_IWantThis.Instance.Reputation -= WorldComponent_IWantThis.Instance.ReputationDestroyed;
             }
             if (signal.tag == inSignal + ".pickupShipThing.SentUnsatisfied")
             {
                 WorldComponent_IWantThis.Instance.ActiveBounty = false;
-                WorldComponent_IWantThis.Instance.Reputation = rep - 2;
-                Messages.Message("IWantThis.ReputationChange".Translate(),MessageTypeDefOf.RejectInput);
+                WorldComponent_IWantThis.Instance.Reputation += WorldComponent_IWantThis.Instance.ReputationUnsatisfied;
+                Messages.Message("IWantThis.ReputationChange".Translate(WorldComponent_IWantThis.Instance.Reputation),MessageTypeDefOf.RejectInput);
+                if (WorldComponent_IWantThis.Instance.Reputation < -4) WorldComponent_IWantThis.Instance.Reputation -= WorldComponent_IWantThis.Instance.ReputationDestroyed;
             }
         }
 
