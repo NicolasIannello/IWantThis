@@ -15,6 +15,10 @@ namespace IWantThis
         public WorldComponent_IWantThis(World world) : base(world) => Instance = this;
         public bool ActiveBounty = false;
         public int Reputation= 0;
+        public int ReputationUnsatisfied = -2;
+        public int ReputationDestroyed = -3;
+        public int ReputationCompleted = 1;
+
         public string GetCallLabel() => null;
         public string GetInfoText() => null;
         public Faction GetFaction() => null;
