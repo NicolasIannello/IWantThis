@@ -91,7 +91,7 @@ namespace IWantThis.UI
                 Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
                     bountyTarget = chosenThing;
-                    if (bountyTarget is ThingDef thingDef2) bountyPrice = (int)Math.Ceiling((thingDef2.BaseMarketValue * 1.75f) + (thingDef2.isTechHediff ? 500 : 0));
+                    if (bountyTarget is ThingDef thingDef2) bountyPrice = (int)Math.Ceiling((thingDef2.BaseMarketValue * 1.75f) + (thingDef2.isTechHediff ? 500 : 0) + (thingDef2.IsMedicine ? 50 : 0));
                     if (bountyTarget is XenotypeDef xenoDef2)
                     {
                         bountyPrice = (int)Math.Ceiling(700 * xenoDef2.combatPowerFactor + 20 * xenoDef2.AllGenes.Count + 300 * (xenoDef2.Archite ? 1 : 0)
@@ -131,6 +131,7 @@ namespace IWantThis.UI
                     new ThingDefCount(ThingDefOf.Silver, bountyPrice)
                 };
                 slate.Set("requiredShuttleItems", requiredShuttleItems);
+
                 List<Thing> reward = new List<Thing>();
                 if (selectedOption == option1)
                 {
@@ -147,16 +148,25 @@ namespace IWantThis.UI
                 if (selectedOption == option3)
                 {
                     Pawn pawnGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
-                                PawnKindDefOf.Beggar, forceGenerateNewPawn: true, allowDowned: true,
-                                forcedXenotype: DefDatabase<XenotypeDef>.GetNamed(bountyTarget.defName), dontGiveWeapon: true));
+                        PawnKindDefOf.Beggar, faction: Faction.OfPirates, forceGenerateNewPawn: true, allowDowned: true, allowPregnant: true, forceNoGear: true,
+                        forcedXenotype: DefDatabase<XenotypeDef>.GetNamed(bountyTarget.defName), dontGiveWeapon: true, allowFood: false, certainlyBeenInCryptosleep: true));
                     reward.Add(pawnGen);
                 }
                 slate.Set("reward", reward);
+
                 slate.Set("delayTicks", IWantThisMod.IntervalArrival.RandomInRange*60000);
                 slate.Set("bountyTarget", bountyTarget.LabelCap);
                 slate.Set("bountyPrice", bountyPrice);
                 slate.Set("minDays", IWantThisMod.IntervalArrival.min);
                 slate.Set("maxDays", IWantThisMod.IntervalArrival.max);
+
+                bool failDestroyed = (WorldComponent_IWantThis.Instance.Reputation + WorldComponent_IWantThis.Instance.ReputationDestroyed) < -4;
+                slate.Set("failDestroyed", failDestroyed);
+                bool failUnsatisfied = (WorldComponent_IWantThis.Instance.Reputation + WorldComponent_IWantThis.Instance.ReputationUnsatisfied) < -4;
+                slate.Set("failUnsatisfied", failUnsatisfied);
+
+                float points = StorytellerUtility.DefaultThreatPointsNow(Map);
+                slate.Set("points", points);
 
                 QuestUtility.GenerateQuestAndMakeAvailable(IWantThis_DefOf.IWantThis_BountyQuest, slate);
                 this.Close();
