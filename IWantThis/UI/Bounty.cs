@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
+using System.Linq;
 
 namespace IWantThis.UI
 {
@@ -117,7 +118,7 @@ namespace IWantThis.UI
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Text.Font = GameFont.Medium;
                 Rect infoRect = new Rect(0, inRect.height - 80 - 35 - 12, inRect.width, 80f);
-                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(bountyPrice, wealth, silver, gold));
+                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(IWantThisMod.EnableCap ? IWantThisMod.Cap : bountyPrice, wealth, silver, gold));
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.UpperLeft;
             }
@@ -128,7 +129,7 @@ namespace IWantThis.UI
                 var slate = new Slate();
                 List<ThingDefCount> requiredShuttleItems = new List<ThingDefCount>
                 {
-                    new ThingDefCount(ThingDefOf.Silver, bountyPrice)
+                    new ThingDefCount(ThingDefOf.Silver, IWantThisMod.EnableCap ? IWantThisMod.Cap : bountyPrice)
                 };
                 slate.Set("requiredShuttleItems", requiredShuttleItems);
 
@@ -141,7 +142,15 @@ namespace IWantThis.UI
                 }
                 if (selectedOption == option2)
                 {
-                    PawnKindDef animalKindDef = DefDatabase<PawnKindDef>.GetNamed(bountyTarget.defName);
+                    PawnKindDef animalKindDef = DefDatabase<PawnKindDef>.GetNamed(bountyTarget.defName, false);
+                    if (animalKindDef == null)
+                    {
+                        ThingDef raceDef = DefDatabase<ThingDef>.GetNamed(bountyTarget.defName, false);
+                        if (raceDef != null)
+                        {
+                            animalKindDef = DefDatabase<PawnKindDef>.AllDefs.FirstOrDefault(pk => pk.race == raceDef);
+                        }
+                    }
                     Pawn animalGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: animalKindDef, faction: null));
                     reward.Add(animalGen);
                 }
