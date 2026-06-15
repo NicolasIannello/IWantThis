@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+    <QuestScriptDef>
+        <defName>IWantThis_BountyQuest</defName>
+        <isRootSpecial>true</isRootSpecial>
+        <autoAccept>true</autoAccept>
+        <rootMinPoints>0</rootMinPoints>
+        <questNameRules>
+            <rulesStrings>
+                <li>questName-> Bounty on [bountyTarget]</li>
+            </rulesStrings>
+        </questNameRules>
+        <questDescriptionRules>
+            <rulesStrings>
+                <li>questDescription-> Bounty hunters have recieved notice of the bounty you put on [bountyTarget], bounty hunters will demand around $[bountyPrice] as compensation.\n\nA bounty hunter will arrive in the next [minDays] to [maxDays] days</li>
+            </rulesStrings>
+        </questDescriptionRules>
+        <root Class="QuestNode_Sequence">
+            <nodes>
+                <li Class="IWantThis.Quest.QuestNode_BountyStart" />
+                <li Class="QuestNode_GetMap" />
+                <!-- <li Class="QuestNode_GetWalkInSpot" /> -->
+
+                <li Class="QuestNode_Letter">
+                    <label>Bounty placed</label>
+                    <text>Bounty hunters have recieved notice of the bounty you put on [bountyTarget]</text>
+                </li>
+
+                <li Class="QuestNode_Delay">
+                    <delayTicks>$delayTicks</delayTicks>
+                    <node Class="QuestNode_Sequence">
+                        <nodes>
+
+                            <li Class="QuestNode_SubScript">
+                                <def>Util_TransportShip_Pickup</def>
+                                <parms>
+                                    <leaveDelayTicks>15000</leaveDelayTicks>
+                                    <requiredItems>$requiredShuttleItems</requiredItems>
+                                    <leaveImmediatelyWhenSatisfied>true</leaveImmediatelyWhenSatisfied>
+                                </parms>
+                            </li>
+
+                            <li Class="QuestNode_Delay">
+                                <isQuestTimeout>true</isQuestTimeout>
+                                <delayTicks>15000</delayTicks>
+                            </li>
+
+                            <li Class="QuestNode_Letter">
+                                <label TKey="LetterLabelShuttleArrived">Bounty shuttle arrived</label>
+                                <text TKey="LetterTextShuttleArrived">The bounty shuttle has arrived to collect payment.</text>
+                                <lookTargets>$pickupShipThing</lookTargets>
+                            </li>
+
+                            <li Class="QuestNode_Signal">
+                                <inSignal>pickupShipThing.Destroyed</inSignal>
+                                <node Class="QuestNode_Sequence">
+                                    <nodes>
+                                        <li Class="QuestNode_Letter">
+                                            <label TKey="LetterLabelShuttleDestroyed">Bounty failed: [bountyTarget]</label>
+                                            <letterDef>NegativeEvent</letterDef>
+                                            <text TKey="LetterTextShuttleDestroyed">The bounty shuttle has been destroyed.</text>
+                                        </li>
+
+                                        <li Class="QuestNode_Equal">
+                                            <value1>$failDestroyed</value1>
+                                            <value2>true</value2>
+                                            
+                                            <node Class="QuestNode_Sequence">
+                                                <nodes>
+                                                    <li Class="QuestNode_GetFaction">
+                                                        <allowEnemy>true</allowEnemy>
+                                                        <allowAlly>false</allowAlly>
+                                                        <storeAs>enemyFaction</storeAs>
+                                                    </li>
+
+                                                    <li Class="QuestNode_Set">
+                                                        <name>doubleRaidPoints</name>
+                                                        <value>$($points* 1.7)+500</value>
+                                                    </li>
+
+                                                    <li Class="QuestNode_SubScript">
+                                                        <def>Util_Raid</def>
+                                                        <parms>
+                                                            <map>$map</map>
+                                                            <enemyFaction>$enemyFaction</enemyFaction>
+                                                            <points>$doubleRaidPoints</points>
+                                                            <raidArrivalMode>CenterDrop</raidArrivalMode>
+                                                            <customLetterLabel>Bounty hunters raid</customLetterLabel>
+                                                            <customLetterText>Bounty hunters have teamup with [enemyFaction_name] to raid you</customLetterText>
+                                                            <customLetterDef>ThreatBig</customLetterDef>
+                                                        </parms>
+                                                    </li>
+                                                </nodes>
+                                            </node>
+                                        </li>
+
+                                        <li Class="QuestNode_End">
+                                            <outcome>Fail</outcome>
+                                        </li>
+                                    </nodes>
+                                </node>
+                            </li>
+
+                            <li Class="QuestNode_Signal">
+                                <inSignal>pickupShipThing.SentSatisfied</inSignal>
+                                <node Class="QuestNode_Sequence">
+                                    <nodes>
+                                        <li Class="QuestNode_DropPods">
+                                            <contents>$reward</contents>
+                                            <useTradeDropSpot>true</useTradeDropSpot>
+                                        </li>
+
+                                        <li Class="QuestNode_End">
+                                            <outcome>Success</outcome>
+                                        </li>
+                                    </nodes>
+                                </node>
+                            </li>
+
+                            <li Class="QuestNode_Signal">
+                                <inSignal>pickupShipThing.SentUnsatisfied</inSignal>
+                                <node Class="QuestNode_Sequence">
+                                    <nodes>
+                                        <li Class="QuestNode_Letter">
+                                            <label TKey="LetterLabelQuestFailed">Bounty failed: [bountyTarget]</label>
+                                            <letterDef>NegativeEvent</letterDef>
+                                            <text TKey="LetterTextQuestFailed">The payment for the bounty on [bountyTarget] has not been paid in time.</text>
+                                        </li>
+
+                                        <li Class="QuestNode_Equal">
+                                            <value1>$failUnsatisfied</value1>
+                                            <value2>true</value2>
+                                            
+                                            <node Class="QuestNode_Sequence">
+                                                <nodes>
+                                                    <li Class="QuestNode_GetFaction">
+                                                        <allowEnemy>true</allowEnemy>
+                                                        <allowAlly>false</allowAlly>
+                                                        <storeAs>enemyFaction</storeAs>
+                                                    </li>
+
+                                                    <li Class="QuestNode_Set">
+                                                        <name>doubleRaidPoints</name>
+                                                        <value>$($points* 1.2)+500</value>
+                                                    </li>
+
+                                                    <li Class="QuestNode_SubScript">
+                                                        <def>Util_Raid</def>
+                                                        <parms>
+                                                            <map>$map</map>
+                                                            <enemyFaction>$enemyFaction</enemyFaction>
+                                                            <points>$doubleRaidPoints</points>
+                                                            <raidArrivalMode>CenterDrop</raidArrivalMode>
+                                                            <customLetterLabel>Bounty hunters raid</customLetterLabel>
+                                                            <customLetterText>Bounty hunters have teamup with [enemyFaction_name] to raid you</customLetterText>
+                                                            <customLetterDef>ThreatBig</customLetterDef>
+                                                        </parms>
+                                                    </li>
+                                                </nodes>
+                                            </node>
+                                        </li>
+
+                                        <li Class="QuestNode_End">
+                                            <outcome>Fail</outcome>
+                                        </li>
+                                    </nodes>
+                                </node>
+                            </li>
+
+                        </nodes>
+                    </node>
+                </li>
+            </nodes>
+        </root>
+    </QuestScriptDef>
+</Defs>

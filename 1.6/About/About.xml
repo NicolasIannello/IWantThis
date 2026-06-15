@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ModMetaData>
+	<name>I want this</name>
+	<author>Eximeisty</author>
+	<supportedVersions><li>1.6</li></supportedVersions>
+	<packageId>Eximeisty.IWantThis</packageId>
+	<description>Place bounties on things and wait for the bounty hunters to arrive.</description>
+
+	<modDependencies>
+		<li>
+			<packageId>brrainz.harmony</packageId>
+			<displayName>Harmony</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+			<downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+		</li>
+		<li>
+			<packageId>Ludeon.RimWorld.Royalty</packageId>
+			<displayName>Royalty</displayName>
+		</li>
+	</modDependencies>
+</ModMetaData>
