@@ -13,6 +13,8 @@ namespace IWantThis.UI
         private List<Def> all;
         private Vector2 scrollPosition;
         private QuickSearchWidget searchWidget = new QuickSearchWidget();
+        string[] listCategories = new string[] { "Manufactured", "ResourcesRaw", "Items", /*"Weapons",*/ "Apparel" };
+        string[] excludeCategories = new string[] { "Buildings", "Chunks", "Animals", "Plants", "Corpses", "BookEffects" };
 
         public override Vector2 InitialSize => new Vector2(450f, 600f);
 
@@ -24,7 +26,9 @@ namespace IWantThis.UI
             this.onSelect = onSelect;
 
             if(option== "ItemsTab".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
-                .Where(d => d.PlayerAcquirable && (d.IsPleasureDrug || d.IsNonMedicalDrug || d.IsMedicine || d.IsNaturalOrgan || d.isTechHediff || d.IsWeapon || d.IsApparel || d.defName.Contains("trainer") )).OrderBy(d => d.label).Cast<Def>().ToList();
+                .Where(d => (d.thingCategories != null && d.thingCategories.Any(c =>listCategories.Contains(c.defName) || c.Parents.Any(p => listCategories.Contains(p.defName)))
+                    && !d.hiddenWhileUndiscovered && !d.destroyOnDrop && !d.isUnfinishedThing && d.relicChance == 0) || (d.IsWeapon && !d.destroyOnDrop && !d.isUnfinishedThing)
+                ).OrderBy(d => d.label).Cast<Def>().ToList();
             if (option == "TabPenAnimals".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
                 .Where(d => d.race != null && d.race.Animal && !d.IsCorpse && d.race.animalType != AnimalType.Dryad).OrderBy(d => d.label).Cast<Def>().ToList();
             if (ModsConfig.BiotechActive && option == "Xenotype".Translate()) this.all = DefDatabase<XenotypeDef>.AllDefs.OrderBy(d => d.label).Cast<Def>().ToList();
