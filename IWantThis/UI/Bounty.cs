@@ -145,7 +145,7 @@ namespace IWantThis.UI
                     PawnKindDef animalKindDef = DefDatabase<PawnKindDef>.GetNamed(bountyTarget.defName, false);
                     if (animalKindDef == null)
                     {
-                        ThingDef raceDef = DefDatabase<ThingDef>.GetNamed(bountyTarget.defName, false);
+                        ThingDef raceDef = DefDatabase<ThingDef>.GetNamed(bountyTarget.defName);
                         if (raceDef != null)
                         {
                             animalKindDef = DefDatabase<PawnKindDef>.AllDefs.FirstOrDefault(pk => pk.race == raceDef);
