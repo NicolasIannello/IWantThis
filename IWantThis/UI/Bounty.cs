@@ -2,9 +2,9 @@
 using RimWorld.QuestGen;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Verse;
-using System.Linq;
 
 namespace IWantThis.UI
 {
@@ -118,7 +118,7 @@ namespace IWantThis.UI
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Text.Font = GameFont.Medium;
                 Rect infoRect = new Rect(0, inRect.height - 80 - 35 - 12, inRect.width, 80f);
-                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(IWantThisMod.EnableCap ? IWantThisMod.Cap : bountyPrice, wealth, silver, gold));
+                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(IWantThisMod.EnableCap ? (IWantThisMod.Cap<bountyPrice ? IWantThisMod.Cap : bountyPrice) : bountyPrice, wealth, silver, gold));
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.UpperLeft;
             }
@@ -129,7 +129,7 @@ namespace IWantThis.UI
                 var slate = new Slate();
                 List<ThingDefCount> requiredShuttleItems = new List<ThingDefCount>
                 {
-                    new ThingDefCount(ThingDefOf.Silver, IWantThisMod.EnableCap ? IWantThisMod.Cap : bountyPrice)
+                    new ThingDefCount(ThingDefOf.Silver, IWantThisMod.EnableCap ? (IWantThisMod.Cap<bountyPrice ? IWantThisMod.Cap : bountyPrice) : bountyPrice)
                 };
                 slate.Set("requiredShuttleItems", requiredShuttleItems);
 
@@ -151,7 +151,14 @@ namespace IWantThis.UI
                             animalKindDef = DefDatabase<PawnKindDef>.AllDefs.FirstOrDefault(pk => pk.race == raceDef);
                         }
                     }
-                    Pawn animalGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: animalKindDef, faction: null));
+                    Faction faction = FactionUtility.DefaultFactionFrom(animalKindDef.defaultFactionDef) ?? null;
+                    Pawn animalGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: animalKindDef, faction: faction));
+
+                    Hediff anesthetic = HediffMaker.MakeHediff(HediffDefOf.Anesthetic, animalGen, null);
+                    animalGen.health.AddHediff(anesthetic);
+                    HediffComp_Disappears comp = anesthetic.TryGetComp<HediffComp_Disappears>();
+                    if (comp != null) comp.ticksToDisappear = 300;
+                    //animalGen.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.ManhunterPermanent, null, true, false, false, null, false, false);
                     reward.Add(animalGen);
                 }
                 if (selectedOption == option3)
