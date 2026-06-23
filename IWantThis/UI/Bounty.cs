@@ -1,4 +1,5 @@
 ﻿using RimWorld;
+using RimWorld.Planet;
 using RimWorld.QuestGen;
 using System;
 using System.Collections.Generic;
@@ -159,6 +160,7 @@ namespace IWantThis.UI
                     HediffComp_Disappears comp = anesthetic.TryGetComp<HediffComp_Disappears>();
                     if (comp != null) comp.ticksToDisappear = 300;
                     //animalGen.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.ManhunterPermanent, null, true, false, false, null, false, false);
+                    Find.WorldPawns.PassToWorld(animalGen, PawnDiscardDecideMode.KeepForever);
                     reward.Add(animalGen);
                 }
                 if (selectedOption == option3)
@@ -166,6 +168,7 @@ namespace IWantThis.UI
                     Pawn pawnGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
                         PawnKindDefOf.Beggar, faction: Faction.OfPirates, forceGenerateNewPawn: true, allowDowned: true, allowPregnant: true, forceNoGear: true,
                         forcedXenotype: DefDatabase<XenotypeDef>.GetNamed(bountyTarget.defName), dontGiveWeapon: true, allowFood: false, certainlyBeenInCryptosleep: true));
+                    Find.WorldPawns.PassToWorld(pawnGen, PawnDiscardDecideMode.KeepForever);
                     reward.Add(pawnGen);
                 }
                 slate.Set("reward", reward);
