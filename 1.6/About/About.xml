@@ -3,7 +3,7 @@
 <ModMetaData>
 	<name>I want this</name>
 	<author>Eximeisty</author>
-	<modVersion>1.5</modVersion>
+	<modVersion>1.6</modVersion>
 	<supportedVersions><li>1.6</li></supportedVersions>
 	<packageId>Eximeisty.IWantThis</packageId>
 	<description>Place bounties on things and wait for the bounty hunters to arrive.</description>

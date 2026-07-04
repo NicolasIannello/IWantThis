@@ -41,7 +41,7 @@ namespace IWantThis.UI
             Map = map;
         }
 
-        public override Vector2 InitialSize => new Vector2(576,817/*Screen.width * 0.3f, Screen.height - 200*/);
+        public override Vector2 InitialSize => new Vector2(/*576,817*/Screen.width * 0.3f, Screen.height - 200);
 
         public override void PostOpen()
         {
