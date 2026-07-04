@@ -17,6 +17,7 @@ namespace IWantThis.UI
         private readonly string option1 = "ItemsTab".Translate();
         private readonly string option2 = "TabPenAnimals".Translate();
         private readonly string option3 = "Xenotype".Translate();
+        private readonly string option4 = "Buildings".Translate();
         private string selectedOption = "ItemsTab".Translate();
         private bool Open = false;
         private Def bountyTarget = null;
@@ -40,7 +41,7 @@ namespace IWantThis.UI
             Map = map;
         }
 
-        public override Vector2 InitialSize => new Vector2(Screen.width * 0.3f, Screen.height - 200);
+        public override Vector2 InitialSize => new Vector2(576,817/*Screen.width * 0.3f, Screen.height - 200*/);
 
         public override void PostOpen()
         {
@@ -72,6 +73,7 @@ namespace IWantThis.UI
                 {
                     new FloatMenuOption(option1, () => selectedOption = option1),
                     new FloatMenuOption(option2, () => selectedOption = option2),
+                    new FloatMenuOption(option4, () => selectedOption = option4),
                 };
 
                 if (ModsConfig.BiotechActive) options.Add(new FloatMenuOption(option3, () => selectedOption = option3));
@@ -135,10 +137,22 @@ namespace IWantThis.UI
                 slate.Set("requiredShuttleItems", requiredShuttleItems);
 
                 List<Thing> reward = new List<Thing>();
-                if (selectedOption == option1)
+                bool flag = true;
+                if (selectedOption == option1 || selectedOption == option4)
                 {
                     Thing thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
                     thingGen.stackCount = 1;
+
+                    if (selectedOption == option4 && thingGen.def.Minifiable)
+                    {
+                        thingGen = thingGen.MakeMinified();
+                    }
+                    else if (selectedOption == option4 && !thingGen.def.Minifiable)
+                    {
+                        flag = false;
+                        Messages.Message("IWantThis.Misc".Translate("Bounty: "+bountyTarget.defName+" could not be minified"), MessageTypeDefOf.NegativeEvent);
+                    }
+
                     reward.Add(thingGen);
                 }
                 if (selectedOption == option2)
@@ -187,7 +201,7 @@ namespace IWantThis.UI
                 float points = StorytellerUtility.DefaultThreatPointsNow(Map);
                 slate.Set("points", points);
 
-                QuestUtility.GenerateQuestAndMakeAvailable(IWantThis_DefOf.IWantThis_BountyQuest, slate);
+                if(flag) QuestUtility.GenerateQuestAndMakeAvailable(IWantThis_DefOf.IWantThis_BountyQuest, slate);
                 this.Close();
             }
 
