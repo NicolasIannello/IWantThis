@@ -15,7 +15,7 @@ namespace IWantThis.UI
         private QuickSearchWidget searchWidget = new QuickSearchWidget();
         string[] listCategories = new string[] { "Manufactured", "ResourcesRaw", "Items", "Weapons", "Apparel", "Artifacts" };
 
-        public override Vector2 InitialSize => new Vector2(/*450f, 600f*/Screen.width * 0.20f, Screen.height - 400);
+        public override Vector2 InitialSize => new Vector2(450f, 600f);
 
         public Selector(Action<Def> onSelect, string option)
         {
