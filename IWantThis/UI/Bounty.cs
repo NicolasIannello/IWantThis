@@ -107,11 +107,12 @@ namespace IWantThis.UI
             listing.Gap();
 
             Rect labelRectCount = listing.GetRect(25);
+            Rect labelRectCount2 = listing.GetRect(35);
+            Rect labelRectMaterial = listing.GetRect(35f);
             if (bountyTarget is ThingDef thingDefCount) 
             {
                 if (thingDefCount.MadeFromStuff)
                 {
-                    Rect labelRectMaterial = listing.GetRect(35f);
                     if (Widgets.ButtonText(labelRectMaterial, materialName!=null ? material+" (" +materialName+")" : material))
                     {
                         Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
@@ -130,7 +131,6 @@ namespace IWantThis.UI
                 Widgets.Label(labelRectCount, "IWantThis.Count".Translate()+" "+maxCount);
             }
 
-            Rect labelRectCount2 = listing.GetRect(35);
             if (bountyTarget != null) Widgets.IntEntry(labelRectCount2, ref count, ref buf, 1);
             listing.Gap();
 
