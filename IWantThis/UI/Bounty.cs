@@ -4,7 +4,6 @@ using RimWorld.QuestGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
 using UnityEngine;
 using Verse;
 
@@ -19,8 +18,11 @@ namespace IWantThis.UI
         private readonly string option2 = "TabPenAnimals".Translate();
         private readonly string option3 = "Xenotype".Translate();
         private readonly string option4 = "Buildings".Translate();
+        private readonly string material= "ShowMaterials".Translate();
         private string selectedOption = "ItemsTab".Translate();
         private Def bountyTarget = null;
+        private ThingDef bountyMaterial = null;
+        private string materialName = null;
         private int bountyPrice = 0;
         private int bountyPriceCount = 0;
         private int count = 1;
@@ -92,6 +94,8 @@ namespace IWantThis.UI
                 Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
                     bountyTarget = chosenThing;
+                    bountyMaterial = null;
+                    materialName = null;
                     if (bountyTarget is ThingDef thingDef2) bountyPrice = (int)Math.Ceiling((thingDef2.BaseMarketValue * 1.75f) + (thingDef2.isTechHediff ? 500 : 0) + (thingDef2.IsMedicine ? 50 : 0));
                     if (bountyTarget is XenotypeDef xenoDef2)
                     {
@@ -105,6 +109,18 @@ namespace IWantThis.UI
             Rect labelRectCount = listing.GetRect(25);
             if (bountyTarget is ThingDef thingDefCount) 
             {
+                if (thingDefCount.MadeFromStuff)
+                {
+                    Rect labelRectMaterial = listing.GetRect(35f);
+                    if (Widgets.ButtonText(labelRectMaterial, materialName!=null ? material+" (" +materialName+")" : material))
+                    {
+                        Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
+                        {
+                            bountyMaterial = (ThingDef) chosenThing;
+                            materialName = chosenThing.LabelCap;
+                        }, "material", thingDefCount));
+                    }
+                }
                 maxCount = thingDefCount.stackLimit * IWantThisMod.Count;
                 Widgets.Label(labelRectCount, "IWantThis.Count".Translate()+" "+maxCount);
             } 
@@ -124,8 +140,9 @@ namespace IWantThis.UI
                 count = clampedValue;
                 buf = count.ToString();
             }
-            
-            bountyPriceCount = bountyPrice * count;
+
+            int mult = bountyMaterial != null ? (int)Math.Ceiling(bountyMaterial.BaseMarketValue) : 1;
+            bountyPriceCount = (bountyPrice*mult) * count;
 
             float size = (inRect.width + inRect.height) * 0.25f;
             float posX = inRect.width * 0.5f - size / 2;
@@ -163,7 +180,16 @@ namespace IWantThis.UI
                 bool flag = true;
                 if (selectedOption == option1 || selectedOption == option4)
                 {
-                    Thing thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+                    Thing thingGen;
+                    if (ThingDef.Named(bountyTarget.defName).MadeFromStuff && bountyMaterial!=null)
+                    {
+                        thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName), ThingDef.Named(bountyMaterial.defName));
+                    }
+                    else
+                    {
+                        thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+                    }
+
                     if(selectedOption == option1) thingGen.stackCount = count;
 
                     if (selectedOption == option4 && thingGen.def.Minifiable)
@@ -171,7 +197,15 @@ namespace IWantThis.UI
                         thingGen = thingGen.MakeMinified();
                         for (int i = 1; i < count; i++)
                         {
-                            Thing thingGen2 = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+                            Thing thingGen2;
+                            if (ThingDef.Named(bountyTarget.defName).MadeFromStuff && bountyMaterial != null)
+                            {
+                                thingGen2 = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName), ThingDef.Named(bountyMaterial.defName));
+                            }
+                            else
+                            {
+                                thingGen2 = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+                            }
                             reward.Add(thingGen2.MakeMinified());
                         }
                     }

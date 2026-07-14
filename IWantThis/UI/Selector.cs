@@ -17,7 +17,7 @@ namespace IWantThis.UI
 
         public override Vector2 InitialSize => new Vector2(450f, 600f);
 
-        public Selector(Action<Def> onSelect, string option)
+        public Selector(Action<Def> onSelect, string option, ThingDef thing=null)
         {
             this.doCloseX = true;
             this.closeOnClickedOutside = true;
@@ -33,7 +33,7 @@ namespace IWantThis.UI
             if (option == "TabPenAnimals".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
                 .Where(d => d.race != null && d.race.Animal && !d.IsCorpse && d.race.animalType != AnimalType.Dryad).OrderBy(d => d.label).Cast<Def>().ToList();
             if (ModsConfig.BiotechActive && option == "Xenotype".Translate()) this.all = DefDatabase<XenotypeDef>.AllDefs.OrderBy(d => d.label).Cast<Def>().ToList();
-
+            if (option == "material") this.all = GenStuff.AllowedStuffsFor(thing).OrderBy(d => d.label).Cast<Def>().ToList();
         }
 
         public override void DoWindowContents(Rect inRect)
