@@ -5,7 +5,7 @@
     <IWantThis.EnableCap>Enable a prize cap for bounties (default {0})</IWantThis.EnableCap>
     <IWantThis.Cap>Bounties will not exceed specified amount</IWantThis.Cap>
     <IWantThis.IntervalArrival>Range of days before bounty hunter arrives (default {0} - {1} days)</IWantThis.IntervalArrival>
-	<IWantThis.Count>Max count</IWantThis.Count>
+	<IWantThis.Count>Max Stacks</IWantThis.Count>
 	<!-- Comms -->
     <IWantThis.PlaceBounty>Place a bounty {0}</IWantThis.PlaceBounty>
     <IWantThis.Select>Select {0}</IWantThis.Select>
