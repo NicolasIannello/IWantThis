@@ -10,6 +10,7 @@ namespace IWantThis
         public static IWantThisMod Instance;
         private IWantThisSettings Settings;
         private string buf;
+        private string bufCount;
 
         public IWantThisMod(ModContentPack content) : base(content)
         {
@@ -22,6 +23,7 @@ namespace IWantThis
         public static IntRange IntervalArrival => Instance.Settings.IntervalArrival;
         public static bool EnableCap => Instance.Settings.EnableCap;
         public static int Cap => Instance.Settings.Cap;
+        public static int Count => Instance.Settings.Count;
 
         public override string SettingsCategory()
         {
@@ -45,6 +47,10 @@ namespace IWantThis
 
             listing.Label("IWantThis.IntervalArrival".Translate(2, 10));
             listing.IntRange(ref Settings.IntervalArrival, 1, 30);
+            listing.Gap();
+
+            listing.Label("IWantThis.Count".Translate());
+            listing.IntEntry(ref Settings.Count, ref bufCount, 1);
 
             listing.Gap(12f);
             if (listing.ButtonText("IWantThis.Reset".Translate()))
@@ -53,7 +59,9 @@ namespace IWantThis
                 Settings.EnableCap = false;
                 Settings.Cap = 30000;
                 Settings.IntervalArrival = new IntRange(2, 10);
+                Settings.Count = 3;
                 buf = "30000";
+                bufCount = "3";
             }
 
             listing.End();
@@ -65,6 +73,7 @@ namespace IWantThis
         public IntRange IntervalArrival = new IntRange(2, 10);
         public bool EnableCap = false;
         public int Cap = 30000;
+        public int Count = 3;
 
         public override void ExposeData()
         {
@@ -72,6 +81,7 @@ namespace IWantThis
             Scribe_Values.Look(ref IntervalArrival, nameof(IntervalArrival), new IntRange(2, 10));
             Scribe_Values.Look(ref EnableCap, nameof(EnableCap), false);
             Scribe_Values.Look(ref Cap, nameof(Cap), 30000);
+            Scribe_Values.Look(ref Count, nameof(Count), 3);
         }
     }
 }

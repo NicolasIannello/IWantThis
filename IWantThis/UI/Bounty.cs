@@ -4,6 +4,7 @@ using RimWorld.QuestGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using UnityEngine;
 using Verse;
 
@@ -19,9 +20,12 @@ namespace IWantThis.UI
         private readonly string option3 = "Xenotype".Translate();
         private readonly string option4 = "Buildings".Translate();
         private string selectedOption = "ItemsTab".Translate();
-        private bool Open = false;
         private Def bountyTarget = null;
         private int bountyPrice = 0;
+        private int bountyPriceCount = 0;
+        private int count = 1;
+        private int maxCount = IWantThisMod.Count;
+        private string buf;
         private int goldC = 0;
         private int silverC = 0;
         private float wealth = 0;
@@ -85,13 +89,6 @@ namespace IWantThis.UI
             Rect labelRect3 = listing.GetRect(35f);
             if (Widgets.ButtonText(labelRect3, "IWantThis.Select".Translate(selectedOption)))
             {
-                Open = true;
-            }
-            listing.Gap();
-
-            if (Open)
-            {
-                Open = false;
                 Find.WindowStack.Add(new Selector(delegate (Def chosenThing)
                 {
                     bountyTarget = chosenThing;
@@ -103,6 +100,32 @@ namespace IWantThis.UI
                     }
                 }, selectedOption));
             }
+            listing.Gap();
+
+            Rect labelRectCount = listing.GetRect(25);
+            if (bountyTarget is ThingDef thingDefCount) 
+            {
+                maxCount = thingDefCount.stackLimit * IWantThisMod.Count;
+                Widgets.Label(labelRectCount, "IWantThis.Count".Translate()+" "+maxCount);
+            } 
+            else if (bountyTarget != null)
+            {
+                maxCount = IWantThisMod.Count;
+                Widgets.Label(labelRectCount, "IWantThis.Count".Translate()+" "+maxCount);
+            }
+
+            Rect labelRectCount2 = listing.GetRect(35);
+            if (bountyTarget != null) Widgets.IntEntry(labelRectCount2, ref count, ref buf, 1);
+            listing.Gap();
+
+            int clampedValue = Mathf.Clamp(count, 1, maxCount);
+            if (count != clampedValue)
+            {
+                count = clampedValue;
+                buf = count.ToString();
+            }
+            
+            bountyPriceCount = bountyPrice * count;
 
             float size = (inRect.width + inRect.height) * 0.25f;
             float posX = inRect.width * 0.5f - size / 2;
@@ -121,7 +144,7 @@ namespace IWantThis.UI
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Text.Font = GameFont.Medium;
                 Rect infoRect = new Rect(0, inRect.height - 80 - 35 - 12, inRect.width, 80f);
-                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(IWantThisMod.EnableCap ? (IWantThisMod.Cap<bountyPrice ? IWantThisMod.Cap : bountyPrice) : bountyPrice, wealth, silver, gold));
+                Widgets.Label(infoRect, "IWantThis.InfoBounty".Translate(IWantThisMod.EnableCap ? (IWantThisMod.Cap< bountyPriceCount ? IWantThisMod.Cap : bountyPriceCount) : bountyPriceCount, wealth, silver, gold));
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.UpperLeft;
             }
@@ -132,7 +155,7 @@ namespace IWantThis.UI
                 var slate = new Slate();
                 List<ThingDefCount> requiredShuttleItems = new List<ThingDefCount>
                 {
-                    new ThingDefCount(ThingDefOf.Silver, IWantThisMod.EnableCap ? (IWantThisMod.Cap<bountyPrice ? IWantThisMod.Cap : bountyPrice) : bountyPrice)
+                    new ThingDefCount(ThingDefOf.Silver, IWantThisMod.EnableCap ? (IWantThisMod.Cap<bountyPriceCount ? IWantThisMod.Cap : bountyPriceCount) : bountyPriceCount)
                 };
                 slate.Set("requiredShuttleItems", requiredShuttleItems);
 
@@ -141,11 +164,16 @@ namespace IWantThis.UI
                 if (selectedOption == option1 || selectedOption == option4)
                 {
                     Thing thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
-                    thingGen.stackCount = 1;
+                    if(selectedOption == option1) thingGen.stackCount = count;
 
                     if (selectedOption == option4 && thingGen.def.Minifiable)
                     {
                         thingGen = thingGen.MakeMinified();
+                        for (int i = 1; i < count; i++)
+                        {
+                            Thing thingGen2 = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+                            reward.Add(thingGen2.MakeMinified());
+                        }
                     }
                     else if (selectedOption == option4 && !thingGen.def.Minifiable)
                     {
@@ -157,39 +185,45 @@ namespace IWantThis.UI
                 }
                 if (selectedOption == option2)
                 {
-                    PawnKindDef animalKindDef = DefDatabase<PawnKindDef>.GetNamed(bountyTarget.defName, false);
-                    if (animalKindDef == null)
+                    for (int i = 0; i < count; i++)
                     {
-                        ThingDef raceDef = DefDatabase<ThingDef>.GetNamed(bountyTarget.defName);
-                        if (raceDef != null)
+                        PawnKindDef animalKindDef = DefDatabase<PawnKindDef>.GetNamed(bountyTarget.defName, false);
+                        if (animalKindDef == null)
                         {
-                            animalKindDef = DefDatabase<PawnKindDef>.AllDefs.FirstOrDefault(pk => pk.race == raceDef);
+                            ThingDef raceDef = DefDatabase<ThingDef>.GetNamed(bountyTarget.defName);
+                            if (raceDef != null)
+                            {
+                                animalKindDef = DefDatabase<PawnKindDef>.AllDefs.FirstOrDefault(pk => pk.race == raceDef);
+                            }
                         }
-                    }
-                    Faction faction = FactionUtility.DefaultFactionFrom(animalKindDef.defaultFactionDef) ?? null;
-                    Pawn animalGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: animalKindDef, faction: faction));
+                        Faction faction = FactionUtility.DefaultFactionFrom(animalKindDef.defaultFactionDef) ?? null;
+                        Pawn animalGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(kind: animalKindDef, faction: faction));
 
-                    Hediff anesthetic = HediffMaker.MakeHediff(HediffDefOf.Anesthetic, animalGen, null);
-                    animalGen.health.AddHediff(anesthetic);
-                    HediffComp_Disappears comp = anesthetic.TryGetComp<HediffComp_Disappears>();
-                    if (comp != null) comp.ticksToDisappear = 300;
-                    //animalGen.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.ManhunterPermanent, null, true, false, false, null, false, false);
-                    Find.WorldPawns.PassToWorld(animalGen, PawnDiscardDecideMode.KeepForever);
-                    reward.Add(animalGen);
+                        Hediff anesthetic = HediffMaker.MakeHediff(HediffDefOf.Anesthetic, animalGen, null);
+                        animalGen.health.AddHediff(anesthetic);
+                        HediffComp_Disappears comp = anesthetic.TryGetComp<HediffComp_Disappears>();
+                        if (comp != null) comp.ticksToDisappear = 300;
+                        //animalGen.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.ManhunterPermanent, null, true, false, false, null, false, false);
+                        Find.WorldPawns.PassToWorld(animalGen, PawnDiscardDecideMode.KeepForever);
+                        reward.Add(animalGen);
+                    }
                 }
                 if (selectedOption == option3)
                 {
-                    Pawn pawnGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
+                    for (int i = 0; i < count; i++)
+                    {
+                        Pawn pawnGen = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
                         PawnKindDefOf.Beggar, faction: Faction.OfPirates, forceGenerateNewPawn: true, allowDowned: true, allowPregnant: true, forceNoGear: true,
-                        forcedXenotype: DefDatabase<XenotypeDef>.GetNamed(bountyTarget.defName), dontGiveWeapon: true, allowFood: false, certainlyBeenInCryptosleep: true));
-                    Find.WorldPawns.PassToWorld(pawnGen, PawnDiscardDecideMode.KeepForever);
-                    reward.Add(pawnGen);
+                            forcedXenotype: DefDatabase<XenotypeDef>.GetNamed(bountyTarget.defName), dontGiveWeapon: true, allowFood: false, certainlyBeenInCryptosleep: true));
+                        Find.WorldPawns.PassToWorld(pawnGen, PawnDiscardDecideMode.KeepForever);
+                        reward.Add(pawnGen);
+                    }
                 }
                 slate.Set("reward", reward);
 
                 slate.Set("delayTicks", IWantThisMod.IntervalArrival.RandomInRange*60000);
                 slate.Set("bountyTarget", bountyTarget.LabelCap);
-                slate.Set("bountyPrice", bountyPrice);
+                slate.Set("bountyPrice", bountyPriceCount);
                 slate.Set("minDays", IWantThisMod.IntervalArrival.min);
                 slate.Set("maxDays", IWantThisMod.IntervalArrival.max);
 
