@@ -13,7 +13,8 @@ namespace IWantThis.UI
         private List<Def> all;
         private Vector2 scrollPosition;
         private QuickSearchWidget searchWidget = new QuickSearchWidget();
-        string[] listCategories = new string[] { "Manufactured", "ResourcesRaw", "Items", "Weapons", "Apparel", "Artifacts" };
+        //string[] listCategories = new string[] { "Manufactured", "ResourcesRaw", "Items", "Weapons", "Apparel"};
+        string[] listCategories = new string[] { "Corpses", "Plants", "Animals", "Buildings"/*, "Foods"*/ };
 
         public override Vector2 InitialSize => new Vector2(450f, 600f);
 
@@ -25,15 +26,17 @@ namespace IWantThis.UI
             this.onSelect = onSelect;
 
             if (option== "ItemsTab".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
-                .Where(d => d.thingCategories != null && !d.defName.Contains("RelicInert") && !d.hiddenWhileUndiscovered && !d.destroyOnDrop && !d.isUnfinishedThing &&
-                d.thingCategories.Any(c => listCategories.Contains(c.defName, StringComparer.OrdinalIgnoreCase) || c.Parents.Any(p => listCategories.Contains(p.defName, StringComparer.OrdinalIgnoreCase)))
+                .Where(d => d.thingCategories != null && d.category == ThingCategory.Item && !d.hiddenWhileUndiscovered && !d.destroyOnDrop && !d.isUnfinishedThing &&
+                !d.thingCategories.Any(c => listCategories.Contains(c.defName, StringComparer.OrdinalIgnoreCase) || c.Parents.Any(p => listCategories.Contains(p.defName, StringComparer.OrdinalIgnoreCase)))
                 ).OrderBy(d => d.label ).Cast<Def>().ToList();
             if (option == "Buildings".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
-                .Where(d => d.thingCategories != null &&d.thingCategories.Any(c => c.defName== "Buildings" || c.Parents.Any(p => p.defName=="Buildings"))).OrderBy(d => d.label).Cast<Def>().ToList();
+                .Where(d => d.thingCategories != null && d.thingCategories.Any(c => c.defName== "Buildings" || c.Parents.Any(p => p.defName=="Buildings"))).OrderBy(d => d.label).Cast<Def>().ToList();
             if (option == "TabPenAnimals".Translate()) this.all = DefDatabase<ThingDef>.AllDefs
                 .Where(d => d.race != null && d.race.Animal && !d.IsCorpse && d.race.animalType != AnimalType.Dryad).OrderBy(d => d.label).Cast<Def>().ToList();
             if (ModsConfig.BiotechActive && option == "Xenotype".Translate()) this.all = DefDatabase<XenotypeDef>.AllDefs.OrderBy(d => d.label).Cast<Def>().ToList();
             if (option == "material") this.all = GenStuff.AllowedStuffsFor(thing).OrderBy(d => d.label).Cast<Def>().ToList();
+
+            //Log.Message(this.all.Count);
         }
 
         public override void DoWindowContents(Rect inRect)
