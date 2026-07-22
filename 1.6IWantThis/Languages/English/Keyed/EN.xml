@@ -2,8 +2,9 @@
 <LanguageData>
 <!-- Mod Settings -->
     <IWantThis.Reset>Reset</IWantThis.Reset>
-    <IWantThis.EnableCap>Enable a prize cap for bounties (default {0})</IWantThis.EnableCap>
-    <IWantThis.Cap>Bounties will not exceed specified amount</IWantThis.Cap>
+    <IWantThis.EnableCap>Enable a prize cap for bounties</IWantThis.EnableCap>
+	<IWantThis.EnableAll>Show ABSOLUTELY everything under the items option (use at your own risk)</IWantThis.EnableAll>
+	<IWantThis.Cap>Bounties will not exceed specified amount</IWantThis.Cap>
     <IWantThis.IntervalArrival>Range of days before bounty hunter arrives (default {0} - {1} days)</IWantThis.IntervalArrival>
 	<IWantThis.Count>Max Stacks</IWantThis.Count>
 	<!-- Comms -->
