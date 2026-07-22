@@ -188,6 +188,8 @@ namespace IWantThis.UI
                     else
                     {
                         thingGen = ThingMaker.MakeThing(ThingDef.Named(bountyTarget.defName));
+
+                        if (ThingDef.Named(bountyTarget.defName).HasComp(typeof(CompBook))) thingGen = BookUtility.MakeBook(ThingDef.Named(bountyTarget.defName), RimWorld.ArtGenerationContext.Outsider);
                     }
 
                     if(selectedOption == option1) thingGen.stackCount = count;
