@@ -37,7 +37,7 @@ namespace IWantThis
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(inRect);
 
-            listing.CheckboxLabeled("IWantThis.EnableCap".Translate("30.000"), ref Settings.EnableCap);
+            listing.CheckboxLabeled("IWantThis.EnableCap".Translate(), ref Settings.EnableCap);
             if (Settings.EnableCap)
             {
                 listing.Label("IWantThis.Cap".Translate());
