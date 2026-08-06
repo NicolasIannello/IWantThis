@@ -64,6 +64,12 @@ namespace IWantThis
                 bufCount = "3";
             }
 
+            listing.Gap(24f);
+            if (listing.ButtonText("IWantThis.ResetBounty".Translate()))
+            {
+                if(Current.ProgramState == ProgramState.Playing) WorldComponent_IWantThis.Instance.ActiveBounty = false;
+            }
+
             listing.End();
         }
     }
