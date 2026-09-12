@@ -270,6 +270,7 @@ namespace IWantThis.UI
 
                 float points = StorytellerUtility.DefaultThreatPointsNow(Map);
                 slate.Set("points", points);
+                slate.Set("map", Map);
 
                 if(flag) QuestUtility.GenerateQuestAndMakeAvailable(IWantThis_DefOf.IWantThis_BountyQuest, slate);
                 this.Close();
